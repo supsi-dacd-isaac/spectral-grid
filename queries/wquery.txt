@@ -1,0 +1,6 @@
+(
+  way[highway]({0});
+);
+out meta;
+>;
+out meta qt;

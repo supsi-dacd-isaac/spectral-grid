@@ -1,0 +1,8 @@
+scipy
+tqdm
+scikit-learn
+networkx
+overpy
+matplotlib
+numpy
+staticmap

@@ -1,0 +1,6 @@
+(
+  way[building]({0});
+);
+out meta;
+>;
+out meta qt;
