@@ -7,14 +7,14 @@ def project(P, A, B):
     vu = v[0] * u[0] + v[1] * u[1]
     vv = v[0] ** 2 + v[1] ** 2
     t = -vu / vv
-    if 0 <= t <= 1:
-        return _vectorToSegment2D(t, _zero2D, A, B), False, None
+    if 0 < t < 1:
+        return _vectorToSegment2D(t, _zero2D, A, B)
     g0 = _sqDiag2D(_vectorToSegment2D(0, P, A, B))
     g1 = _sqDiag2D(_vectorToSegment2D(1, P, A, B))
     if g0 <= g1:
-        return A, True, 0
+        return A
     else:
-        return B, True, 1
+        return B
 
 
 def _vectorToSegment2D(t, P, A, B):

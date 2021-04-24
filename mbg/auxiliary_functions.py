@@ -1,15 +1,15 @@
+import os
 import random
+from collections import Counter
 from copy import deepcopy
+from math import radians as rad
 
 import networkx as nx
-import shapely.geometry as sh
-from numpy import isclose, asarray, mean, argsort
 import numpy as np
+from numpy import isclose, asarray, mean, argsort
 from tqdm import tqdm
-from collections import Counter
-from math import radians as rad
-import os
 
+from .projection import project
 
 R_EARTH = 6378137.0
 
@@ -165,7 +165,7 @@ def total_connect(gr: nx.Graph,
 
     for pt_name in tqdm(pts, desc='Connecting buildings to skeleton... ', unit='buildings', disable=logger.level > 10):
 
-        ptpt = sh.Point(gr.nodes[pt_name][position_attribute_name])
+        ptpt = asarray(gr.nodes[pt_name][position_attribute_name])
 
         # here we find a small bunch of edges that are eligible for being the nearest neighbor
         cool_points = _k_nearest(EXPLORED_POINTS_BREADTH, ptpt, street_positions_dict)
@@ -190,15 +190,14 @@ def total_connect(gr: nx.Graph,
             if filtered:
                 continue
 
-            line_points = (gr.nodes[edge[0]][position_attribute_name], gr.nodes[edge[1]][position_attribute_name])
-            tls = sh.LineString(line_points)
-            point_onedge = tls.interpolate(tls.project(ptpt))
+            point_onedge = project(ptpt, gr.nodes[edge[0]][position_attribute_name],
+                                    gr.nodes[edge[1]][position_attribute_name])
 
             # if the projected point coincides with one of the endpoints we use it as projected name
-            if isclose(asarray(point_onedge.coords)[0], gr.nodes[edge[0]][position_attribute_name], rtol=rtol_street, atol=atol_street).all():
+            if isclose(asarray(point_onedge), gr.nodes[edge[0]][position_attribute_name], rtol=rtol_street, atol=atol_street).all():
                 terminal = True
                 projected_node_name = edge[0]
-            elif isclose(asarray(point_onedge.coords)[0], gr.nodes[edge[1]][position_attribute_name], rtol=rtol_street, atol=atol_street).all():
+            elif isclose(asarray(point_onedge), gr.nodes[edge[1]][position_attribute_name], rtol=rtol_street, atol=atol_street).all():
                 terminal = True
                 projected_node_name = edge[1]
             else:
@@ -215,7 +214,7 @@ def total_connect(gr: nx.Graph,
                 gr.add_edge(projected_node_name, edge[1], **selected_edge_attributes)
 
                 # inserts position and type of the projected node name
-                gr.nodes[projected_node_name][position_attribute_name] = list(point_onedge.coords)[0]
+                gr.nodes[projected_node_name][position_attribute_name] = tuple(point_onedge)
                 gr.nodes[projected_node_name]['type'] = 'street_link'
 
             # ok, now we can decide which are the best phases to attach.
@@ -232,7 +231,7 @@ def total_connect(gr: nx.Graph,
     # now we add some (sensible) daisy chain possibilities
     # new_edges = combinations(pts, 2)
     for pt_name in tqdm(pts, desc='Daisy-chaining buildings... ', unit='buildings', disable=logger.level > 10):
-        ptpt = sh.Point(gr.nodes[pt_name][position_attribute_name])
+        ptpt = asarray(gr.nodes[pt_name][position_attribute_name])
         brothers = _k_nearest(N_DAISIES, ptpt, building_positions_dict)
         for b in brothers:
             gr.add_edge(pt_name, b, type='daisy_chain')
