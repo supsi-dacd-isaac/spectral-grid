@@ -14,5 +14,5 @@ if __name__ == '__main__':
     }
 
     mbg = MapBoxGraph(AROSIO, log_level=10)
-    mbg.compute([.25, .35, .4], maxiter=1)
+    mbg.compute([.25, .35, .4], maxiter=150)
     mbg.subplot(**GRAPHIC_OPTS)
