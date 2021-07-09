@@ -283,6 +283,7 @@ def core_partitioning(graph,
 
     if do_plots:
         plt.ioff()
+        plt.show()
 
     # solution info
     succint_sol = {

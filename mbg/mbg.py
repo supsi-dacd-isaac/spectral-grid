@@ -1,6 +1,7 @@
 import logging
 import os.path
 from copy import deepcopy
+from time import time
 
 import matplotlib.colors as colors
 import networkx as nx
@@ -12,8 +13,8 @@ from overpy import Overpass
 
 from .auxiliary_functions import this_dir, way_center, way_area, sort_box, _walk2
 from .auxiliary_functions import total_connect
-from .map_painting import DEFAULT_GRAPHIC_OPTS, _paint_map
 from .grid_partitioner import partition_grid
+from .map_painting import DEFAULT_GRAPHIC_OPTS, _paint_map
 
 DEFAULT_CONFIG = dict(
     daisy_chain=True
@@ -123,7 +124,12 @@ class MapBoxGraph:
                 tc.nodes[n]['pwr'] = 0.01
 
         tot_pwr = sum(nx.get_node_attributes(tc, 'pwr').values())
+
+        start_time = time()
         clusters = partition_grid(tc, [x * tot_pwr for x in parts], 'virtual_length', 'pwr', partitioning_kwargs)
+        end_time = time()
+        self.logger.info(f'Clustering step completed in {end_time - start_time:.2f} seconds')
+
         loads_in_clusters = [len([n for n in cluster if gr.nodes[n]['type'] == 'load']) for cluster in clusters]
         self.logger.debug('{} clusters created of cardinality: {}'.format(len(clusters), loads_in_clusters))
 
