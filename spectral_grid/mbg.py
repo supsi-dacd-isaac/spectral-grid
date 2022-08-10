@@ -21,7 +21,7 @@ from time import time
 from .auxiliary_functions import this_dir, way_center, way_area, sort_box, _walk2
 from .auxiliary_functions import total_connect
 from .grid_partitioner import partition_grid
-from .map_painting import DEFAULT_GRAPHIC_OPTS, _paint_map
+from .map_painting import DEFAULT_GRAPHIC_OPTS, paint_map
 
 PY2 = version_info[0] == 2
 PY3 = version_info[0] == 3
@@ -162,6 +162,7 @@ class _SplitQueryOverpass(oy.Overpass):
 class MapBoxGraph:
 
     def __init__(self, box,
+                 shelf_file,
                  config={},
                  log_format='%(asctime)s (MapBoxGraph) %(levelname)s --> %(message)s',
                  log_level=logging.WARNING):
@@ -184,7 +185,7 @@ class MapBoxGraph:
         self.logger.addHandler(sh)
         self.logger.setLevel(log_level)
 
-        self.shelf_file = 'bobi.shf'
+        self.shelf_file = shelf_file
 
         # query and store
         bways, hways = self._query()
@@ -443,10 +444,28 @@ class MapBoxGraph:
             nx.draw_networkx_nodes(sgee, nx.get_node_attributes(sgee, 'pos'), nl_this, go['bnode_size']*0.5,
                                    node_color='#ffffff', **nx_opts)
 
-        _paint_map(self.box, plt, go, self.logger)
+        paint_map(self.box, plt, go, self.logger)
         plt.axis('equal')
         plt.show()
 
+    def as_digraphs(self):
+        dgs = []
+        for component in [nx.subgraph(self.g, n) for n in nx.connected_components(self.g)]:
+            root_node = [n for n, typ in nx.get_node_attributes(component, 'type').items() if typ == 'source']
+            assert len(root_node) == 1
+            root_node = root_node[0]
 
+            astr = treeize(component, root_node)
+
+            for n in astr.nodes:
+                for attr in component.nodes[n].keys():
+                    astr.nodes[n][attr] = component.nodes[n][attr]
+
+                for e in astr.edges:
+                    for attr in component.edges[e].keys():
+                        astr.edges[e][attr] = component.edges[e][attr]
+
+            dgs.append(astr)
+        return dgs
 
 

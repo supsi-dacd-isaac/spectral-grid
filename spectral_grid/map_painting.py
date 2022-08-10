@@ -42,7 +42,7 @@ def _request_map(center, zoom, px_bounds):
     return img, box
 
 
-def _paint_map(box, plt_proxy, graphical_options=DEFAULT_GRAPHIC_OPTS, logger=None):
+def paint_map(box, plt_proxy, graphical_options=DEFAULT_GRAPHIC_OPTS, logger=None):
     """paints the map inside the rectangle described by box onto the object plt_proxy.
     plt_proxy has to have an attribute 'imshow' that behaves like matplotlib.pyplot.imshow ."""
 
