@@ -6,3 +6,4 @@ overpy
 matplotlib
 numpy
 staticmap
+PyQt5
