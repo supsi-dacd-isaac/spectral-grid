@@ -1,7 +1,7 @@
 import networkx as nx
 import numpy as np
-from mbg import core_partitioning
-from mbg.auxiliary_functions import random_conn_graph_2
+from spectral_grid import core_partitioning
+from spectral_grid.auxiliary_functions import random_conn_graph_2
 import argparse
 import scipy.io as sio
 

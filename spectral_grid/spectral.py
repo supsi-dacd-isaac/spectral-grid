@@ -13,6 +13,8 @@ from scipy.sparse.linalg import eigs
 from sklearn.cluster import k_means
 from tqdm import tqdm
 
+from .utils import SuppressFutureWarnings
+
 matplotlib.use('Qt5Agg')
 
 
@@ -87,8 +89,9 @@ def core_partitioning(graph,
         # calculate laplacian
 
         # note: all matrices are sparse
-        A = nx.adjacency_matrix(work_graph, weight=edge_weight_key)
-        L0 = nx.laplacian_matrix(work_graph, weight=edge_weight_key)
+        with SuppressFutureWarnings():
+            A = nx.adjacency_matrix(work_graph, weight=edge_weight_key)
+            L0 = nx.laplacian_matrix(work_graph, weight=edge_weight_key)
         D = L0 + A
 
         # vector of weighted nodes
@@ -108,10 +111,7 @@ def core_partitioning(graph,
             raise ValueError(f'laplacian mode {laplacian_mode} unknown (ratio|norm|weight)')
 
         # compute eigenvalues
-        try:
-            eig_values, eig_vectors = eigs(L0, k=n_parts, M=D, which='SM')
-        except:
-            break
+        eig_values, eig_vectors = eigs(LM, k=n_parts, M=D, which='SM', tol=1e-8)
         pU = np.real(eig_vectors)
 
         # normalization and kmeans

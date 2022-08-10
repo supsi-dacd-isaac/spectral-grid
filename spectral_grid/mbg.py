@@ -1,27 +1,25 @@
 import json
 import logging
+import os.path
+import shelve
+from copy import deepcopy
+from sys import version_info
+from time import time
+
 import matplotlib.colors as colors
 import networkx as nx
 import networkx.algorithms.approximation.steinertree as nxs
-import os.path
 import overpy as oy
-import shapely.geometry as shg
-import shelve
-from copy import deepcopy
-from functools import partial
-from map2graph._utils import treeize, pairwise
 from matplotlib import pyplot as plt
 from matplotlib.cm import get_cmap
-from numpy import asarray, Inf, mean, asarray
-from operator import itemgetter
+from numpy import asarray
 from overpy import Overpass
-from sys import version_info
-from time import time
 
 from .auxiliary_functions import this_dir, way_center, way_area, sort_box, _walk2
 from .auxiliary_functions import total_connect
 from .grid_partitioner import partition_grid
 from .map_painting import DEFAULT_GRAPHIC_OPTS, paint_map
+from .utils import treeize
 
 PY2 = version_info[0] == 2
 PY3 = version_info[0] == 3

@@ -27,7 +27,7 @@ def partition_grid(graph, parts, edge_weight_key, node_weight_key, partitioning_
         aggressiveness=0.05,
         imbalance_tol=1e-1,
         maxiter=150,
-        laplacian_mode='norm',  # 'norm', 'weight', 'ratio'
+        laplacian_mode='ratio',  # 'norm', 'weight', 'ratio'
         seed=None,
         verbosity='full',  # 'none', 'full', 'progress'
         do_plots=False,
