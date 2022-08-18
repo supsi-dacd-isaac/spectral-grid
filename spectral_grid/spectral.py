@@ -15,7 +15,8 @@ from tqdm import tqdm
 
 from .utils import SuppressFutureWarnings
 
-matplotlib.use('Qt5Agg')
+
+# matplotlib.use('Qt5Agg')
 
 
 def core_partitioning(graph,

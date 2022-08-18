@@ -37,11 +37,6 @@ DEFAULT_CONFIG = dict(
 )
 
 
-CONN_WEIGHTS = {'street': 0.6,
-                'link': 1.2,
-                'daisy_chain': 1.5,
-                'entry': 100}
-
 
 class _MapBoxEncoder(json.JSONEncoder):
     def default(self, o):
@@ -190,15 +185,14 @@ class MapBoxGraph:
         self.downloaded_buildings = bways.ways
         self.downloaded_highways = hways.ways
 
-    def compute(self, parts, **partitioning_kwargs):
+    def compute(self, parts, conn_weights, **partitioning_kwargs):
 
         buildings_cds = self._default_building_unpack()
         highways = self.downloaded_highways
-        conn_weigths = CONN_WEIGHTS
 
         gr = self._graphize_streets(highways)
         self._add_buildings(gr, buildings_cds)
-        self._compute_links(gr, conn_weigths, parts, partitioning_kwargs)
+        self._compute_links(gr, conn_weights, parts, partitioning_kwargs)
 
     def _query_nkd(self):
         # we load the queries
@@ -388,13 +382,13 @@ class MapBoxGraph:
                     if not ((self.box[0] < n2.lat < self.box[2]) and (self.box[1] < n2.lon < self.box[3])):
                         continue
 
-                street_graph.add_node(str(n2.id) + node_suffix,
+                street_graph.add_node(str(n1.id) + node_suffix,
                                       pos=asarray([n1.lon, n1.lat]).astype(float),
                                       type='street')
-                street_graph.add_node(str(n1.id) + node_suffix,
+                street_graph.add_node(str(n2.id) + node_suffix,
                                       pos=asarray([n2.lon, n2.lat]).astype(float),
                                       type='street')
-                street_graph.add_edge(str(n2.id) + node_suffix, str(n1.id) + node_suffix, phases=3, type='street')
+                street_graph.add_edge(str(n1.id) + node_suffix, str(n2.id) + node_suffix, phases=3, type='street')
 
         # it may be possible that the streets are not connected. In that case, we only take the biggest component.
         # one could also choose to add nonexistent street edges or to find the minimum street path to connect

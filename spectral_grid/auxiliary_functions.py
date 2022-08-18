@@ -232,8 +232,8 @@ def total_connect(gr: nx.Graph,
     # new_edges = combinations(pts, 2)
     for pt_name in tqdm(pts, desc='Daisy-chaining buildings... ', unit='buildings', disable=logger.level > 10):
         ptpt = asarray(gr.nodes[pt_name][position_attribute_name])
-        brothers = _k_nearest(N_DAISIES, ptpt, building_positions_dict)
-        for b in brothers:
+        brothers = _k_nearest(N_DAISIES+1, ptpt, building_positions_dict)
+        for b in brothers[1:]:
             gr.add_edge(pt_name, b, type='daisy_chain')
 
     # now we assign the lengths, which will be the weights for the mst search

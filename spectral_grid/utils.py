@@ -9,7 +9,12 @@ from scipy.spatial import distance as spd
 
 
 R_EARTH = 6378137.0
-# this_dir = os.path.dirname(os.path.realpath(__file__))
+DEFAULT_CONN_WEIGHTS = {
+    'street': 1.1,
+    'link': 1.7,
+    'daisy_chain': 2.5,
+    'entry': 10
+}
 
 
 class SuppressFutureWarnings(object):

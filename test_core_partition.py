@@ -4,11 +4,14 @@ from spectral_grid import core_partitioning
 from spectral_grid.auxiliary_functions import random_conn_graph_2
 import argparse
 import scipy.io as sio
+import matplotlib
 
 WL = 'nweight'
 EL = 'eweight'
 
 if __name__ == '__main__':
+
+    matplotlib.use('Qt5Agg')
 
     ap = argparse.ArgumentParser()
     ap.add_argument('-type')
