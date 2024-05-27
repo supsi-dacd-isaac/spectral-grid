@@ -12,6 +12,7 @@ import networkx.algorithms.approximation.steinertree as nxs
 import overpy as oy
 from matplotlib import pyplot as plt
 from matplotlib.cm import get_cmap
+from matplotlib.patches import Rectangle
 from numpy import asarray
 from overpy import Overpass
 
@@ -322,10 +323,11 @@ class MapBoxGraph:
             gr_part.remove_nodes_from([n for n in no if gr_part.nodes[n]['type'] == 'load' and n not in cluster])
 
             # steiner
-            # gr_part = nxs.steiner_tree(gr_part, realnodes, weight='virtual_length')
+            gr_part = nxs.steiner_tree(gr_part, realnodes + ['trmain' + str(clno)], weight='virtual_length')
+            gr_part = gr_part.__class__(gr_part)  # "unfreezes" the graph
 
             # mst
-            gr_part = nx.minimum_spanning_tree(gr_part, weight='virtual_length')
+            # gr_part = nx.minimum_spanning_tree(gr_part, weight='virtual_length')
 
             # remove street nodes that are not used by this cluster
             sps = nx.shortest_path(gr_part, 'trmain' + str(clno), weight='virtual_length')
@@ -404,14 +406,20 @@ class MapBoxGraph:
 
         return street_graph
 
-    def subplot(self, go=DEFAULT_GRAPHIC_OPTS, **nx_opts):
+    def plot_box(self, go=DEFAULT_GRAPHIC_OPTS):
 
+        currentAxis = plt.gca()
+        currentAxis.add_patch(Rectangle((someX - 0.1, someY - 0.1), 0.2, 0.2,
+                                alpha=1, facecolor='none'))
+        paint_map(self.box, plt, go, self.logger)
+        plt.axis('equal')
+
+    def subplot(self, go=DEFAULT_GRAPHIC_OPTS, **nx_opts):
         clr = get_cmap('tab10')
 
         nl_tot = set([b.id for b in self.downloaded_buildings])
-        ccs = [nx.subgraph(self.g, n) for n in nx.connected_components(self.g)]
-
-        for idx, sgee in enumerate(ccs):
+        plt.figure(figsize=(20, 20))
+        for idx, sgee in enumerate(self.sorted_subgraphs()):
             eggos = list(sgee.edges)
             color_component = clr(idx / 10 + 0.02)
 
@@ -430,15 +438,26 @@ class MapBoxGraph:
 
             # bigger building nodes
             nx.draw_networkx_nodes(sgee, nx.get_node_attributes(sgee, 'pos'), nl_this, go['bnode_size'],
-                                   node_color=[color_component] * len(nl_this), **nx_opts)
+                                   node_color=[color_component] * len(nl_this))
 
             # white center
             nx.draw_networkx_nodes(sgee, nx.get_node_attributes(sgee, 'pos'), nl_this, go['bnode_size']*0.5,
-                                   node_color='#ffffff', **nx_opts)
+                                   node_color='#ffffff')
+
+            # nx.draw_networkx_nodes(sgee, nx.get_node_attributes(sgee, 'pos'), nodelist, go['bnode_size']*1.5,
+            #                        node_color='r', )
+
+            # trafo
+            trf = [x for x in sgee if self.g.nodes[x]['type'] == 'source'][0]
+            nx.draw_networkx_nodes(sgee, nx.get_node_attributes(sgee, 'pos'),
+                                   nodelist=[trf],
+                                   node_size=go['bnode_size']*2, node_shape='v',
+                                   node_color='r')
+            nx.draw_networkx_labels(sgee, nx.get_node_attributes(sgee, 'pos'),
+                                    labels={trf: str(idx)})
 
         paint_map(self.box, plt, go, self.logger)
         plt.axis('equal')
-        plt.show()
 
     def as_digraphs(self):
         dgs = []
@@ -460,4 +479,8 @@ class MapBoxGraph:
             dgs.append(astr)
         return dgs
 
-
+    def sorted_subgraphs(self):
+        conn_comp = nx.connected_components(self.g)
+        conn_comp = sorted(conn_comp, key=len)
+        for cc in conn_comp:
+            yield nx.subgraph(self.g, cc)

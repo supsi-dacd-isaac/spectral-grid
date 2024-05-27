@@ -10,7 +10,7 @@ from scipy.spatial import distance as spd
 
 R_EARTH = 6378137.0
 DEFAULT_CONN_WEIGHTS = {
-    'street': 1.1,
+    'street': 0.6,
     'link': 1.7,
     'daisy_chain': 2.5,
     'entry': 10
