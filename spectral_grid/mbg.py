@@ -311,7 +311,7 @@ class MapBoxGraph:
             # calculating best traf position
             no = deepcopy(gr_part.nodes)
             realnodes = [n for n in no if gr_part.nodes[n]['type'] == 'load' and n in cluster]
-            gro_part = nxs.steiner_tree(gr_part, realnodes)
+            gro_part = nxs.steiner_tree(gr_part, realnodes, method='kou')
 
             barycenter = nx.barycenter(gro_part, weight='virtual_length')[0]
 

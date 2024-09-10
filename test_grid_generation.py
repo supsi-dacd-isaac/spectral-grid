@@ -1,4 +1,5 @@
 import matplotlib
+import matplotlib.pyplot as plt
 
 from spectral_grid import MapBoxGraph, DEFAULT_CONN_WEIGHTS
 
@@ -7,6 +8,7 @@ if __name__ == '__main__':
 
     matplotlib.use('Qt5Agg')
 
+    NORTH_TEL_AVIV = (32.08221094419315, 34.76881083753131, 32.09846313747509, 34.78288920921475)
     TREMONA = (45.88116, 8.9540, 45.88209, 8.95783)
     LITTA_PARODI = (44.8717, 8.7079, 44.8739, 8.7123)
     SPINETTA = (44.88281, 8.68040, 44.88549, 8.68468)
@@ -23,7 +25,8 @@ if __name__ == '__main__':
         'node_shape': 'h',
     }
 
-    mbg = MapBoxGraph(TREMONA, None, log_level=10)
+    mbg = MapBoxGraph(NORTH_TEL_AVIV, None, log_level=10)
     mbg.compute([1.0], DEFAULT_CONN_WEIGHTS, maxiter=100, imbalance_tol=1e-1)
     mbg.subplot(**GRAPHIC_OPTS)
+    plt.show()
     pass
