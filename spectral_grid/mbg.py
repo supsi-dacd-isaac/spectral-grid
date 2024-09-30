@@ -355,7 +355,7 @@ class MapBoxGraph:
             for n1x, n2y in combinations(ls, 2):
                 n1, x = n1x
                 n2, y = n2y
-                print('{},{} : {}'.format(n1, n2, x.intersection(y)))
+                print('{},{} : {}'.format(n1, n2, x.int_grafo_vasco(y)))
             raise
 
         self.logger.info('Grid created')
